@@ -1,0 +1,39 @@
+#!/bin/bash
+
+BLACK='\033[0;30m'
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+WHITE='\033[0;37m'
+NC='\033[0m'
+
+if [ "$1" == "" ]; then
+    echo -e "${RED}Passe o argumento: ./ParsingHTML (site)${NC}"
+
+else
+
+    echo ""
+    echo -e "${RED}=====================================================================${NC}"
+    echo ""
+    echo -e "${GREEN}Verificando a URLs: $1 ${NC}"
+    echo ""
+    echo -e "${RED}=====================================================================${NC}"
+
+    site_name=$(echo "$1" | cut -d "/" -f 3 | cut -d "." -f 2) #O Trecho desse codigo pega o argumento, dps tira as barras, e tira o www, dps salva em uma variavel
+    wget --user-agent="Mozilla5.0" "$1" -O "${site_name}.txt" > /dev/null 2>&1 #wget esta pegando e baixando oq tem no site,mudando o user-agent para o site do FBI n saber que eu to usando o WGET, dps o -O joga pro nome que a gente faez aq em ciam
+    echo -e "${GREEN}Concluido: Salvando os resultados em: ${site_name}.txt${NC}"
+    echo -e "${RED}=====================================================================${NC}"
+
+    cat "${site_name}.txt" | grep "<li><a href=" | cut -d '"' -f2 > lista_com_erro.txt #aqui eu so to pegando apenas as urls
+    cat lista_com_erro.txt | cut -d "/" -f 3 > lista.txt #estou tirando o http://
+
+    while read -r lista; do
+    host "$lista" | grep -v "NXDOMAIN";
+    done < lista.txt
+
+    echo -e "${RED}=====================================================================${NC}"
+
+fi
